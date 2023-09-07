@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import Notiflix from 'notiflix';
 import { nanoid } from 'nanoid';
 import { ContactForm } from './ContactForm/ContactForm';
@@ -7,34 +7,30 @@ import { Filter } from './Filter/Filter';
 import { GlobalStyle } from './GlobalStyle';
 import { Layout } from './Layout';
 
-export class App extends Component {
-  state = {
-    contacts: [
-      { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-      { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-      { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-      { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-      { id: 'id-5', name: 'Ankie Copeland', number: '227-91-26' },
-    ],
-    filter: '',
-  };
-
-  componentDidMount() {
-    const contactsLocal = localStorage.getItem('contacts');
-    if (contactsLocal) {
-      this.setState({ contacts: [...JSON.parse(contactsLocal)] });
-    }
+const getInitialContacts = () => {
+  const contactsLocal = localStorage.getItem('contacts');
+  if (contactsLocal) {
+    return JSON.parse(contactsLocal);
   }
+  return [
+    { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
+    { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
+    { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
+    { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
+    { id: 'id-5', name: 'Ankie Copeland', number: '227-91-26' },
+  ];
+};
 
-  componentDidUpdate(prevProps, prevState) {
-    const { contacts } = this.state;
-    if (prevState !== contacts) {
-      localStorage.setItem('contacts', JSON.stringify(contacts));
-    }
-  }
+export const App = () => {
+  const [contacts, setcontacts] = useState(getInitialContacts);
+  const [filter, setFilter] = useState('');
 
-  formSubmitHandler = ({ name, number }) => {
-    const existingName = this.state.contacts.some(
+  useEffect(() => {
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]);
+
+  const onSubmitForm = ({ name, number }) => {
+    const existingName = contacts.some(
       contact => contact.name.toLowerCase() === name.toLowerCase()
     );
     if (existingName) {
@@ -46,44 +42,30 @@ export class App extends Component {
       name,
       number,
     };
-    this.setState(prevstate => ({
-      contacts: [...prevstate.contacts, newContact],
-    }));
+    setcontacts(prevcontacts => [...prevcontacts, newContact]);
   };
 
-  onDelete = e => {
+  const onDelete = e => {
     const idContact = e.currentTarget.dataset.id;
-    this.setState(prevstate => ({
-      contacts: prevstate.contacts.filter(({ id }) => id !== idContact),
-    }));
+    setcontacts(contacts.filter(({ id }) => id !== idContact));
   };
 
-  onChangeFilter = e => {
-    this.setState({ filter: e.currentTarget.value });
-  };
+  const onChangeFilter = e => setFilter(e.currentTarget.value);
 
-  onFilter = () => {
-    const { contacts, filter } = this.state;
-    return contacts.filter(({ name }) =>
-      name.toLowerCase().includes(filter.toLowerCase())
-    );
-  };
+  const filtered = contacts.filter(({ name }) =>
+    name.toLowerCase().includes(filter.toLowerCase())
+  );
 
-  render() {
-    return (
-      <Layout>
-        <h1>Phonebook</h1>
-        <ContactForm onSubmit={this.formSubmitHandler} />
+  return (
+    <Layout>
+      <h1>Phonebook</h1>
+      <ContactForm onSubmit={onSubmitForm} />
 
-        <h2>Contacts</h2>
-        <Filter
-          filter={this.state.filter}
-          onChangeFilter={this.onChangeFilter}
-        />
-        <ContactList contacts={this.onFilter()} onDelete={this.onDelete} />
+      <h2>Contacts</h2>
+      <Filter filter={filter} onChangeFilter={onChangeFilter} />
+      <ContactList contacts={filtered} onDelete={onDelete} />
 
-        <GlobalStyle />
-      </Layout>
-    );
-  }
-}
+      <GlobalStyle />
+    </Layout>
+  );
+};
