@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { nanoid } from 'nanoid';
 import { Formik, ErrorMessage } from 'formik';
 import { object, string } from 'yup';
@@ -36,59 +36,57 @@ const validationScheme = object().shape({
     .required(),
 });
 
-export class ContactForm extends Component {
-  labelNameId = nanoid();
-  labelNumberId = nanoid();
+export const ContactForm = ({ onSubmit }) => {
+  const labelNameId = nanoid();
+  const labelNumberId = nanoid();
 
-  onSubmitForm = (values, { resetForm }) => {
-    this.props.onSubmit(values);
+  const onSubmitForm = (values, { resetForm }) => {
+    onSubmit(values);
     resetForm();
   };
 
-  render() {
-    return (
-      <Formik
-        initialValues={initialValues}
-        validationSchema={validationScheme}
-        onSubmit={this.onSubmitForm}
-      >
-        {({ isSubmitting }) => (
-          <FormStyle autoComplete="off">
-            <div>
-              <label htmlFor={this.labelNameId}>Name</label>
-              <InputWrap>
-                <Input
-                  type="text"
-                  name="name"
-                  title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
-                  placeholder="Name"
-                  id={this.labelNameId}
-                />
-                <IconUser />
-              </InputWrap>
-              <FormError name="name" />
-            </div>
+  return (
+    <Formik
+      initialValues={initialValues}
+      validationSchema={validationScheme}
+      onSubmit={onSubmitForm}
+    >
+      {({ isSubmitting }) => (
+        <FormStyle autoComplete="off">
+          <div>
+            <label htmlFor={labelNameId}>Name</label>
+            <InputWrap>
+              <Input
+                type="text"
+                name="name"
+                title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
+                placeholder="Name"
+                id={labelNameId}
+              />
+              <IconUser />
+            </InputWrap>
+            <FormError name="name" />
+          </div>
 
-            <div>
-              <label htmlFor={this.labelNumberId}>Number</label>
-              <InputWrap>
-                <Input
-                  type="tel"
-                  name="number"
-                  title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
-                  placeholder="Phone number"
-                  id={this.labelNumberId}
-                />
-                <IconPhone />
-              </InputWrap>
-              <FormError name="number" />
-            </div>
-            <Button type="submit" disabled={isSubmitting}>
-              Add contact
-            </Button>
-          </FormStyle>
-        )}
-      </Formik>
-    );
-  }
-}
+          <div>
+            <label htmlFor={labelNumberId}>Number</label>
+            <InputWrap>
+              <Input
+                type="tel"
+                name="number"
+                title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
+                placeholder="Phone number"
+                id={labelNumberId}
+              />
+              <IconPhone />
+            </InputWrap>
+            <FormError name="number" />
+          </div>
+          <Button type="submit" disabled={isSubmitting}>
+            Add contact
+          </Button>
+        </FormStyle>
+      )}
+    </Formik>
+  );
+};

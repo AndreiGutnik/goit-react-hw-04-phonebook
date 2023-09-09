@@ -47,10 +47,10 @@ export const App = () => {
 
   const onDelete = e => {
     const idContact = e.currentTarget.dataset.id;
-    setcontacts(contacts.filter(({ id }) => id !== idContact));
+    setcontacts(prevcontacts =>
+      prevcontacts.filter(({ id }) => id !== idContact)
+    );
   };
-
-  const onChangeFilter = e => setFilter(e.currentTarget.value);
 
   const filtered = contacts.filter(({ name }) =>
     name.toLowerCase().includes(filter.toLowerCase())
@@ -62,7 +62,10 @@ export const App = () => {
       <ContactForm onSubmit={onSubmitForm} />
 
       <h2>Contacts</h2>
-      <Filter filter={filter} onChangeFilter={onChangeFilter} />
+      <Filter
+        filter={filter}
+        onChangeFilter={e => setFilter(e.currentTarget.value)}
+      />
       <ContactList contacts={filtered} onDelete={onDelete} />
 
       <GlobalStyle />
